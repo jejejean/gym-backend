@@ -130,6 +130,16 @@ public class ReserveServiceImpl implements CrudInterface<ReserveRequest, Reserve
         reserveRepository.delete(reserve);
         return ExceptionMessages.RESERVE_DELETED;
     }
+
+    @Override
+    public List<String> getAllDatesWithReservationsByUserId(Long userId) {
+        List<Reserve> reserves = reserveRepository.findAllByUserId(userId);
+        return reserves.stream()
+                .map(reserve -> reserve.getReservationDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
+                .distinct()
+                .toList();
+    }
+
     /*
     private void scheduleReminderEmail(User user, LocalDate reservationDate, LocalTime startTime) {
         ZoneId peruZone = ZoneId.of("America/Lima");

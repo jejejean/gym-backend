@@ -46,4 +46,9 @@ public class ReserveController {
     public ResponseEntity<Object> delete(@PathVariable Long id) {
         return new ResponseEntity<>(reserveServiceCrud.delete(id),HttpStatus.NO_CONTENT);
     }
+
+    @GetMapping("/dates/{id}")
+    public ResponseEntity<Object> getAllDatesWithReservationsByUserId(@PathVariable Long id) {
+        return new ResponseEntity<>(reserveService.getAllDatesWithReservationsByUserId(id), HttpStatus.OK);
+    }
 }
