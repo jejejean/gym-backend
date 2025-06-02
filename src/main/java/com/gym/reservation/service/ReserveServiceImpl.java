@@ -6,7 +6,10 @@ import com.gym.reservation.models.entity.Attendance;
 import com.gym.reservation.models.entity.Reserve;
 import com.gym.reservation.models.entity.TimeSlot;
 import com.gym.reservation.models.request.ReserveRequest;
+import com.gym.reservation.models.response.AttendanceResponse;
+import com.gym.reservation.models.response.ReserveByDayResponse;
 import com.gym.reservation.models.response.ReserveResponse;
+import com.gym.reservation.models.response.TimeSlotResponse;
 import com.gym.reservation.repository.AttendanceRepository;
 import com.gym.reservation.repository.ReserveRepository;
 import com.gym.reservation.repository.TimeSlotRepository;
@@ -14,21 +17,17 @@ import com.gym.shared.Constants.ExceptionMessages;
 import com.gym.shared.interfaces.CrudInterface;
 import com.gym.shared.interfaces.MapperConverter;
 import com.gym.user.models.entity.User;
+import com.gym.user.models.response.UserProfileResponse;
+import com.gym.user.models.response.UserSimpleResponse;
 import com.gym.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.scheduling.TaskScheduler;
-import org.springframework.scheduling.concurrent.ConcurrentTaskScheduler;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -163,6 +162,67 @@ public class ReserveServiceImpl implements CrudInterface<ReserveRequest, Reserve
         return reserves.stream()
                 .map(reserve -> reserve.getReservationDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
                 .distinct()
+                .toList();
+    }
+
+    @Override
+    public List<ReserveByDayResponse> findAllByReservationDate(LocalDate reservationDate) {
+        List<Reserve> reserves = reserveRepository.findAllByReservationDate(reservationDate);
+        if (reserves.isEmpty()) {
+            throw new NotFoundException(ExceptionMessages.RESERVE_NOT_FOUND);
+        }
+        return reserves.stream()
+                .map(reserve -> {
+                    ReserveByDayResponse response = new ReserveByDayResponse();
+                    response.setId(reserve.getId());
+                    response.setDetails(reserve.getDetails());
+                    response.setReservationDate(reserve.getReservationDate());
+
+                    User user = userRepository.findById(reserve.getUser().getIdUser())
+                            .orElseThrow(() -> new NotFoundException(ExceptionMessages.USER_NOT_FOUND));
+                    if (user != null) {
+                        //user user = reserve.getUser();
+                        UserSimpleResponse userSimpleResponse = new UserSimpleResponse();
+                        userSimpleResponse.setIdUser(user.getIdUser());
+                        userSimpleResponse.setUsername(user.getUsername());
+                        userSimpleResponse.setEmail(user.getEmail());
+                        userSimpleResponse.setPhone(user.getPhone());
+                        userSimpleResponse.setStatus(user.getStatus());
+
+                        UserProfileResponse profileResponse = new UserProfileResponse();
+                        profileResponse.setId(user.getUserProfile().getId());
+                        profileResponse.setSex(user.getUserProfile().getSex());
+                        profileResponse.setHeight(user.getUserProfile().getHeight());
+                        profileResponse.setWeight(user.getUserProfile().getWeight());
+                        userSimpleResponse.setUserProfileResponse(profileResponse);
+                        response.setUserSimpleResponse(userSimpleResponse);
+
+                    }
+                    Attendance attendance = attendanceRepository.findById(reserve.getAttendance().getId())
+                            .orElseThrow(() -> new NotFoundException(ExceptionMessages.ATTENDANCE_NOT_FOUND));
+
+                    if (attendance != null) {
+                        //Attendance attendance = reserve.getAttendance();
+                        AttendanceResponse attendanceResponse = new AttendanceResponse();
+                        attendanceResponse.setId(attendance.getId());
+                        attendanceResponse.setAttended(attendance.getAttended());
+                        attendanceResponse.setCheckinTime(attendance.getCheckinTime());
+                        response.setAttendanceResponse(attendanceResponse);
+                    }
+
+                    List<TimeSlotResponse> timeSlotResponses = reserve.getTimeSlots().stream()
+                            .map(timeSlot -> {
+                                TimeSlotResponse timeSlotResponse = new TimeSlotResponse();
+                                timeSlotResponse.setId(timeSlot.getId());
+                                timeSlotResponse.setStartTime(timeSlot.getStartTime());
+                                timeSlotResponse.setEndTime(timeSlot.getEndTime());
+                                return timeSlotResponse;
+                            })
+                            .toList();
+                    response.setTimeSlotResponse(timeSlotResponses);
+
+                    return response;
+                })
                 .toList();
     }
 

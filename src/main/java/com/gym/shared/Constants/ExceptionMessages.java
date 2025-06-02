@@ -14,6 +14,8 @@ public class ExceptionMessages {
 
     public static final String RESERVE_NOT_FOUND = "La reserva no se encuentra registrada";
     public static final String RESERVE_DELETED = "La reserva ha sido eliminada correctamente";
+
+    public static final String ATTENDANCE_NOT_FOUND = "La asistencia no se encuentra registrada";
     public static final String EMAIL_ALREADY_REGISTERED = "El email %s ya está registrado por otro usuario";
     public static final String EMAIL_ALREADY_REGISTERED_OR_DUPLICATED = "El email %s ya está registrado o el email se está duplicando";
 

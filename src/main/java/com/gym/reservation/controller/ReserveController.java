@@ -9,6 +9,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("api/v1/reserve")
@@ -50,5 +52,10 @@ public class ReserveController {
     @GetMapping("/dates/{id}")
     public ResponseEntity<Object> getAllDatesWithReservationsByUserId(@PathVariable Long id) {
         return new ResponseEntity<>(reserveService.getAllDatesWithReservationsByUserId(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/by-date/{reservationDate}")
+    public ResponseEntity<Object> findAllByReservationDate(@PathVariable String reservationDate) {
+        return new ResponseEntity<>(reserveService.findAllByReservationDate(LocalDate.parse(reservationDate)), HttpStatus.OK);
     }
 }

@@ -16,5 +16,4 @@ public class AttendanceResponse implements IHandleResponse {
     private Long id;
     private Boolean attended;
     private LocalDateTime checkinTime;
-    private ReserveResponse reserveResponse;
 }
