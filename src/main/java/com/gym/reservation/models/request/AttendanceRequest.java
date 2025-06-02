@@ -16,5 +16,4 @@ public class AttendanceRequest implements IHandleRequest {
     private Long id;
     private Boolean attended;
     private LocalDateTime checkinTime;
-    private ReserveRequest reserveRequest;
 }

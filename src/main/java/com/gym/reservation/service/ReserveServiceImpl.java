@@ -27,6 +27,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -111,14 +112,39 @@ public class ReserveServiceImpl implements CrudInterface<ReserveRequest, Reserve
         Reserve reserve = reserveRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ExceptionMessages.RESERVE_NOT_FOUND));
 
-        List<TimeSlot> timeSlots = request.getTimeSlotId().stream()
-                .map(timeSlotId -> timeSlotRepository.findById(timeSlotId)
-                        .orElseThrow(() -> new NotFoundException(ExceptionMessages.TIME_SLOT_NOT_FOUND)))
-                .toList();
+        List<TimeSlot> timeSlots = new ArrayList<>();
+        for (Long timeSlotId : request.getTimeSlotId()) {
+            TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
+                    .orElseThrow(() -> new NotFoundException(ExceptionMessages.TIME_SLOT_NOT_FOUND));
+            timeSlots.add(timeSlot);
+        }
+        reserve.getTimeSlots().clear();
+        reserve.getTimeSlots().addAll(timeSlots);
+        //reserve.setDetails(request.getDetails());
 
-        reserve.setTimeSlots(timeSlots);
-        reserve.setDetails(request.getDetails());
-        reserve.setReservationDate(request.getReservationDate());
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        SimpleMailMessage message = new SimpleMailMessage();
+        String fechaFormateada = request.getReservationDate().format(formatter);
+
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new NotFoundException(ExceptionMessages.USER_NOT_FOUND));
+
+        TimeSlot firstTimeSlot = timeSlotRepository.findById(request.getTimeSlotId().get(0))
+                .orElseThrow(() -> new NotFoundException(ExceptionMessages.TIME_SLOT_NOT_FOUND));
+
+        int lastIndex = request.getTimeSlotId().size() - 1;
+        TimeSlot lastTimeSlot = timeSlotRepository.findById(request.getTimeSlotId().get(lastIndex))
+                .orElseThrow(() -> new NotFoundException(ExceptionMessages.TIME_SLOT_NOT_FOUND));
+
+        message.setTo(user.getEmail());
+        message.setSubject("Confirmación de Reserva - VitalFit");
+        message.setText("¡Hola " + user.getUsername() + "!\n\n" +
+                "Se ha actualizado la reserva:\n" +
+                "Dia: " + fechaFormateada + "\n" +
+                "Hora: " + firstTimeSlot.getStartTime() + " - " + lastTimeSlot.getEndTime() +" \n" +
+                "Gracias por preferirnos.");
+
+        emailSender.send(message);
         reserveRepository.save(reserve);
         return reserveMapper.mapEntityToDto(reserve);
     }

@@ -17,14 +17,11 @@ public class AttendanceMapper implements MapperConverter<AttendanceRequest, Atte
     @Override
     public AttendanceResponse mapEntityToDto(Attendance entity) {
         return modelMapper.map(entity, AttendanceResponse.class);
-
     }
 
     @Override
     public Attendance mapDtoToEntity(AttendanceRequest request) {
         Attendance attendance = modelMapper.map(request, Attendance.class);
-
-
         attendance.setId(null);
         attendance.setAttended(false);
         return attendance;
