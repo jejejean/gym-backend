@@ -2,6 +2,7 @@ package com.gym.reservation.controller;
 
 import com.gym.reservation.interfaces.ReserveService;
 import com.gym.reservation.models.request.ReserveRequest;
+import com.gym.reservation.models.request.ReserveSimpleRequest;
 import com.gym.reservation.models.response.ReserveResponse;
 import com.gym.shared.interfaces.CrudInterface;
 import lombok.RequiredArgsConstructor;
@@ -57,5 +58,10 @@ public class ReserveController {
     @GetMapping("/by-date/{reservationDate}")
     public ResponseEntity<Object> findAllByReservationDate(@PathVariable String reservationDate) {
         return new ResponseEntity<>(reserveService.findAllByReservationDate(LocalDate.parse(reservationDate)), HttpStatus.OK);
+    }
+
+    @PutMapping("update/attendance/{id}")
+    public ResponseEntity<Object> getAttendanceByUserId(@PathVariable Long id, @RequestBody ReserveSimpleRequest reserveRequest) {
+        return new ResponseEntity<>(reserveService.getAttendanceByUserId(id, reserveRequest), HttpStatus.OK);
     }
 }

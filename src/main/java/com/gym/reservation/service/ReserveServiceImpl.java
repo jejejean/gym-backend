@@ -5,7 +5,9 @@ import com.gym.reservation.interfaces.ReserveService;
 import com.gym.reservation.models.entity.Attendance;
 import com.gym.reservation.models.entity.Reserve;
 import com.gym.reservation.models.entity.TimeSlot;
+import com.gym.reservation.models.request.AttendanceRequest;
 import com.gym.reservation.models.request.ReserveRequest;
+import com.gym.reservation.models.request.ReserveSimpleRequest;
 import com.gym.reservation.models.response.AttendanceResponse;
 import com.gym.reservation.models.response.ReserveByDayResponse;
 import com.gym.reservation.models.response.ReserveResponse;
@@ -37,6 +39,7 @@ public class ReserveServiceImpl implements CrudInterface<ReserveRequest, Reserve
 
     private final ReserveRepository reserveRepository;
     private final MapperConverter<ReserveRequest, ReserveResponse, Reserve> reserveMapper;
+    private final MapperConverter<AttendanceRequest, AttendanceResponse, Attendance> attendanceMapper;
     private final TimeSlotRepository timeSlotRepository;
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
@@ -163,6 +166,18 @@ public class ReserveServiceImpl implements CrudInterface<ReserveRequest, Reserve
                 .map(reserve -> reserve.getReservationDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")))
                 .distinct()
                 .toList();
+    }
+
+    @Override
+    public AttendanceResponse getAttendanceByUserId(Long id, ReserveSimpleRequest request) {
+        Reserve reserve = reserveRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(ExceptionMessages.RESERVE_NOT_FOUND));
+
+        Attendance attendance = reserve.getAttendance();
+        attendance.setAttended(request.getAttendanceRequest().getAttended());
+        attendance.setCheckinTime(request.getAttendanceRequest().getCheckinTime());
+        attendanceRepository.save(attendance);
+        return attendanceMapper.mapEntityToDto(attendance);
     }
 
     @Override
