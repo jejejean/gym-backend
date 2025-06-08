@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalTime;
+import java.util.Date;
 import java.util.List;
 
 @AllArgsConstructor
@@ -28,6 +29,10 @@ public class TimeSlot implements IHandleEntity {
 
     @Column(name = "end_time")
     private LocalTime endTime;
+
+    private Date date;
+
+    private Integer capacity;
 
     @ManyToMany(mappedBy = "timeSlots")
     private List<Reserve> reserves;
