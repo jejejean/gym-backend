@@ -15,9 +15,9 @@ import java.util.List;
 @Setter
 public class ReserveResponse implements IHandleResponse {
     private Long id;
-    private String details;
     private LocalDate reservationDate;
     private Long userId;
     private List<TimeSlotResponse> timeSlotResponse;
     private AttendanceResponse attendanceResponse;
+    private List<MachineResponse> machineResponse;
 }

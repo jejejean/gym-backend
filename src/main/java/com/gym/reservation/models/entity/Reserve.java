@@ -26,8 +26,6 @@ public class Reserve implements IHandleEntity {
     @Column(name = "reservation_date")
     private LocalDate reservationDate;
 
-    private String details;
-
     @ManyToOne
     @JoinColumn(name = "id_usuario")
     private User user;
@@ -39,6 +37,14 @@ public class Reserve implements IHandleEntity {
             inverseJoinColumns = @JoinColumn(name = "time_slot_id")
     )
     private List<TimeSlot> timeSlots;
+
+    @ManyToMany
+    @JoinTable(
+            name = "reserve_machine",
+            joinColumns = @JoinColumn(name = "reserve_id"),
+            inverseJoinColumns = @JoinColumn(name = "machine_id")
+    )
+    private List<Machine> machine;
 
     @OneToOne(mappedBy = "reserve", cascade = CascadeType.ALL)
     private Attendance attendance;

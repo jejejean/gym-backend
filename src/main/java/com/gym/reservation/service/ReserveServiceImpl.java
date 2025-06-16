@@ -3,6 +3,7 @@ package com.gym.reservation.service;
 import com.gym.exceptions.NotFoundException;
 import com.gym.reservation.interfaces.ReserveService;
 import com.gym.reservation.models.entity.Attendance;
+import com.gym.reservation.models.entity.Machine;
 import com.gym.reservation.models.entity.Reserve;
 import com.gym.reservation.models.entity.TimeSlot;
 import com.gym.reservation.models.request.AttendanceRequest;
@@ -91,6 +92,13 @@ public class ReserveServiceImpl implements CrudInterface<ReserveRequest, Reserve
         TimeSlot lastTimeSlot = timeSlotRepository.findById(request.getTimeSlotId().get(lastIndex))
                 .orElseThrow(() -> new NotFoundException(ExceptionMessages.TIME_SLOT_NOT_FOUND));
 
+        String maquinas = reserve.getMachine().isEmpty()
+                ? "Ninguna"
+                : reserve.getMachine().stream()
+                .map(machine -> "\t- " + machine.getName())
+                .reduce((a, b) -> a + "\n" + b)
+                .orElse("Ninguna");
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
         SimpleMailMessage message = new SimpleMailMessage();
@@ -102,6 +110,7 @@ public class ReserveServiceImpl implements CrudInterface<ReserveRequest, Reserve
                 "Se ha registrado una reserva:\n" +
                 "Dia: " + fechaFormateada + "\n" +
                 "Hora: " + firstTimeSlot.getStartTime() + " - " + lastTimeSlot.getEndTime() +" \n" +
+                "Máquinas reservadas:\n" + maquinas + "\n\n" +
                 "Gracias por preferirnos.");
 
         emailSender.send(message);
@@ -190,7 +199,7 @@ public class ReserveServiceImpl implements CrudInterface<ReserveRequest, Reserve
                 .map(reserve -> {
                     ReserveByDayResponse response = new ReserveByDayResponse();
                     response.setId(reserve.getId());
-                    response.setDetails(reserve.getDetails());
+                    //response.setMachine(reserve.getMachine());
                     response.setReservationDate(reserve.getReservationDate());
 
                     User user = userRepository.findById(reserve.getUser().getIdUser())

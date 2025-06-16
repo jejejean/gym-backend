@@ -62,6 +62,9 @@ public class UserServiceImpl implements CrudInterface<UserRequest, UserResponse>
         if (request == null) {
             throw new NotFoundException(ExceptionMessages.USER_NOT_FOUND);
         }
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new NotFoundException("El correo ya está registrado");
+        }
         User user = userMapper.mapDtoToEntity(request);
         userRepository.save(user);
         return userMapper.mapEntityToDto(user);

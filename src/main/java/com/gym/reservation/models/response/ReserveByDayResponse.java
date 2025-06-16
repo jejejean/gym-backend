@@ -15,7 +15,6 @@ import java.util.List;
 @Setter
 public class ReserveByDayResponse {
     private Long id;
-    private String details;
     private LocalDate reservationDate;
     private UserSimpleResponse userSimpleResponse;
     private List<TimeSlotResponse> timeSlotResponse;

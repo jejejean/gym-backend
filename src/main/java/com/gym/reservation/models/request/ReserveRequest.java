@@ -17,7 +17,7 @@ public class ReserveRequest implements IHandleRequest {
     private Long id;
     private Long userId;
     private List<Long> timeSlotId;
-    private String details;
     private LocalDate reservationDate;
     private AttendanceRequest attendanceRequest;
+    private List<MachineRequest> machineRequest;
 }
