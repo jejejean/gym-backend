@@ -19,4 +19,5 @@ public class ReserveByDayResponse {
     private UserSimpleResponse userSimpleResponse;
     private List<TimeSlotResponse> timeSlotResponse;
     private AttendanceResponse attendanceResponse;
+    private List<MachineResponse> machineResponse;
 }
