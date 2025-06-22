@@ -7,7 +7,6 @@ import com.gym.shared.interfaces.MapperConverter;
 import com.gym.user.interfaces.UserService;
 import com.gym.user.models.entity.User;
 import com.gym.user.models.entity.UserProfile;
-import com.gym.user.models.mapper.UserMapper;
 import com.gym.user.models.request.UserRequest;
 import com.gym.user.models.response.UserResponse;
 import com.gym.user.repository.UserProfileRepository;
@@ -19,6 +18,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -93,8 +93,8 @@ public class UserServiceImpl implements CrudInterface<UserRequest, UserResponse>
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ExceptionMessages.USER_NOT_FOUND));
 
+        user.setStatus(request.getStatus());
         if (user.getStatus().equals("Activo") && request.getUserPlansRequest() != null) {
-            // Mapear y actualizar los planes del usuario
             List<UserPlan> userPlans = request.getUserPlansRequest().stream()
                     .map(userPlanRequest -> {
                         PlanType planType = planTypeRepository.findById(userPlanRequest.getPlanTypeId())
@@ -110,8 +110,8 @@ public class UserServiceImpl implements CrudInterface<UserRequest, UserResponse>
                     })
                     .toList();
 
-            // Asignar los nuevos planes al usuario
-            user.setUserPlans(userPlans);
+            // Asegúrate de usar una lista mutable
+            user.setUserPlans(new ArrayList<>(userPlans));
         }
 
         userRepository.save(user);
