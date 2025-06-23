@@ -21,6 +21,9 @@ public class Machine implements IHandleEntity {
     private Long id;
     private String name;
 
-    @ManyToMany(mappedBy = "machine")
+    @ManyToMany(mappedBy = "machines")
     private List<Reserve> reserves;
+
+    @ManyToMany(mappedBy = "machines")
+    private List<TimeSlot> timeSlots;
 }

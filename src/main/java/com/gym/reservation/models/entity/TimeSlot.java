@@ -39,4 +39,13 @@ public class TimeSlot implements IHandleEntity {
 
     @OneToMany(mappedBy = "timeSlot", cascade = CascadeType.ALL)
     private List<SlotCapacity> slotCapacities;
+
+    @ManyToMany
+    @JoinTable(
+            name = "machine_timeslots",
+            joinColumns = @JoinColumn(name = "time_slot_id"),
+            inverseJoinColumns = @JoinColumn(name = "machine_id")
+    )
+    private List<Machine> machines;
+
 }

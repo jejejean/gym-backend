@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalTime;
 import java.util.Date;
+import java.util.List;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,4 +20,5 @@ public class TimeSlotRequest implements IHandleRequest {
     private LocalTime endTime;
     private Date date;
     private Integer capacity;
+    private List<Long> idsMachine;
 }

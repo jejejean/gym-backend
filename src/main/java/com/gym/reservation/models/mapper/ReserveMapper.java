@@ -43,7 +43,7 @@ public class ReserveMapper implements MapperConverter<ReserveRequest, ReserveRes
         List<TimeSlotResponse> timeSlotResponses = entity.getTimeSlots().stream()
                 .map(timeSlotMapper::mapEntityToDto)
                 .toList();
-        List<MachineResponse> machineResponses = entity.getMachine().stream()
+        List<MachineResponse> machineResponses = entity.getMachines().stream()
                 .map(machineMapper::mapEntityToDto)
                 .toList();
         AttendanceResponse attendanceResponse = AttendanceMapper.mapEntityToDto(entity.getAttendance());
@@ -74,7 +74,7 @@ public class ReserveMapper implements MapperConverter<ReserveRequest, ReserveRes
         reserve.setUser(user);
         reserve.setAttendance(attendance);
         reserve.setTimeSlots(timeSlots);
-        reserve.setMachine(machines);
+        reserve.setMachines(machines);
         return reserve;
     }
 }

@@ -92,9 +92,9 @@ public class ReserveServiceImpl implements CrudInterface<ReserveRequest, Reserve
         TimeSlot lastTimeSlot = timeSlotRepository.findById(request.getTimeSlotId().get(lastIndex))
                 .orElseThrow(() -> new NotFoundException(ExceptionMessages.TIME_SLOT_NOT_FOUND));
 
-        String maquinas = reserve.getMachine().isEmpty()
+        String maquinas = reserve.getMachines().isEmpty()
                 ? "Ninguna"
-                : reserve.getMachine().stream()
+                : reserve.getMachines().stream()
                 .map(machine -> "\t- " + machine.getName())
                 .reduce((a, b) -> a + "\n" + b)
                 .orElse("Ninguna");

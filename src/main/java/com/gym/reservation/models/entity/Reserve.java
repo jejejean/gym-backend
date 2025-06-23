@@ -44,7 +44,7 @@ public class Reserve implements IHandleEntity {
             joinColumns = @JoinColumn(name = "reserve_id"),
             inverseJoinColumns = @JoinColumn(name = "machine_id")
     )
-    private List<Machine> machine;
+    private List<Machine> machines;
 
     @OneToOne(mappedBy = "reserve", cascade = CascadeType.ALL)
     private Attendance attendance;
