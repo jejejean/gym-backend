@@ -1,5 +1,7 @@
 package com.gym.reservation.service;
 
+import com.gym.intermediateRelations.models.entity.MachineTimeSlot;
+import com.gym.intermediateRelations.repository.MachineTimeSlotRepository;
 import com.gym.reservation.interfaces.TimeSlotService;
 import com.gym.reservation.models.entity.Machine;
 import com.gym.reservation.models.entity.TimeSlot;
@@ -20,6 +22,7 @@ public class TimeSlotServiceImpl implements TimeSlotService {
     private final TimeSlotRepository timeSlotRepository;
     private final MapperConverter<TimeSlotRequest, TimeSlotResponse, TimeSlot> timeSlotMapper;
     private final MachineRepository machineRepository;
+    private final MachineTimeSlotRepository machineTimeSlotRepository;
 
     @Override
     public List<TimeSlotResponse> getAllTimeSlots() {
@@ -29,6 +32,7 @@ public class TimeSlotServiceImpl implements TimeSlotService {
                 .toList();
     }
 
+    // En tu método createAll
     @Override
     public List<TimeSlotResponse> createAll(TimeSlotRequest request) {
         List<TimeSlot> timeSlots = new java.util.ArrayList<>();
@@ -42,15 +46,20 @@ public class TimeSlotServiceImpl implements TimeSlotService {
             TimeSlot timeSlot = new TimeSlot();
             timeSlot.setStartTime(current);
             timeSlot.setEndTime(current.plusMinutes(10));
-            timeSlot.setCapacity(request.getCapacity());
             timeSlot.setDate(request.getDate());
-            timeSlot.setMachines(machines);
-            timeSlots.add(timeSlot);
+            timeSlotRepository.save(timeSlot);
 
+            for (Machine machine : machines) {
+                MachineTimeSlot mts = new MachineTimeSlot();
+                mts.setMachine(machine);
+                mts.setTimeSlot(timeSlot);
+                mts.setCapacity(request.getCapacity());
+                machineTimeSlotRepository.save(mts);
+            }
+
+            timeSlots.add(timeSlot);
             current = current.plusMinutes(10);
         }
-
-        timeSlotRepository.saveAll(timeSlots);
 
         return timeSlots.stream()
                 .map(timeSlotMapper::mapEntityToDto)
@@ -61,7 +70,6 @@ public class TimeSlotServiceImpl implements TimeSlotService {
     public List<TimeSlotResponse> updateAll(TimeSlotRequest request) {
         List<TimeSlot> timeSlots = timeSlotRepository.findAll();
         for (TimeSlot timeSlot : timeSlots) {
-            timeSlot.setCapacity(request.getCapacity());
             timeSlot.setDate(request.getDate());
         }
         timeSlotRepository.saveAll(timeSlots);
@@ -71,7 +79,6 @@ public class TimeSlotServiceImpl implements TimeSlotService {
             response.setId(ts.getId());
             response.setStartTime(ts.getStartTime());
             response.setEndTime(ts.getEndTime());
-            response.setCapacity(ts.getCapacity());
             response.setDate(ts.getDate());
             return response;
         }).toList();

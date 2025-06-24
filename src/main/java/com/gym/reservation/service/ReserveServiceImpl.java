@@ -75,6 +75,22 @@ public class ReserveServiceImpl implements CrudInterface<ReserveRequest, Reserve
         if (request == null) {
             throw new NotFoundException(ExceptionMessages.RESERVE_NOT_FOUND);
         }
+
+//        // Validar capacidad por cada timeSlot y máquina
+//        for (Long timeSlotId : request.getTimeSlotId()) {
+//            TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
+//                    .orElseThrow(() -> new NotFoundException(ExceptionMessages.TIME_SLOT_NOT_FOUND));
+//            int capacidad = timeSlot.getCapacity();
+//
+//            for (Long machineId : request.getMachineIdList()) { // Ajusta el nombre según tu request
+//                // Cuenta reservas existentes para ese timeSlot y máquina
+//                int reservasActuales = reserveRepository.countByTimeSlotIdAndMachineId(timeSlotId, machineId);
+//                if (reservasActuales >= capacidad) {
+//                    throw new IllegalStateException("La máquina " + machineId + " ya alcanzó la capacidad máxima en el horario seleccionado.");
+//                }
+//            }
+//        }
+
         Reserve reserve = reserveMapper.mapDtoToEntity(request);
         reserveRepository.save(reserve);
 

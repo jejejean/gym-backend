@@ -1,5 +1,6 @@
 package com.gym.reservation.models.entity;
 
+import com.gym.intermediateRelations.models.entity.MachineTimeSlot;
 import com.gym.shared.interfaces.IHandleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,6 @@ public class Machine implements IHandleEntity {
     @ManyToMany(mappedBy = "machines")
     private List<Reserve> reserves;
 
-    @ManyToMany(mappedBy = "machines")
-    private List<TimeSlot> timeSlots;
+    @OneToMany(mappedBy = "machine", cascade = CascadeType.ALL)
+    private List<MachineTimeSlot> machineTimeSlots;
 }

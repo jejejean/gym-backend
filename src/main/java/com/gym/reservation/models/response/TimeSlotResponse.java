@@ -1,5 +1,6 @@
 package com.gym.reservation.models.response;
 
+import com.gym.intermediateRelations.models.response.MachineTimeSlotResponse;
 import com.gym.shared.interfaces.IHandleResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,6 +20,5 @@ public class TimeSlotResponse implements IHandleResponse {
     private LocalTime startTime;
     private LocalTime endTime;
     private Date date;
-    private Integer capacity;
-    private List<MachineResponse> machineResponse;
+    private List<MachineTimeSlotResponse> machineResponse;
 }

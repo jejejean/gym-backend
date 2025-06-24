@@ -1,6 +1,7 @@
 package com.gym.reservation.models.entity;
 
 
+import com.gym.intermediateRelations.models.entity.MachineTimeSlot;
 import com.gym.shared.interfaces.IHandleEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -32,20 +34,13 @@ public class TimeSlot implements IHandleEntity {
 
     private Date date;
 
-    private Integer capacity;
-
     @ManyToMany(mappedBy = "timeSlots")
     private List<Reserve> reserves;
 
     @OneToMany(mappedBy = "timeSlot", cascade = CascadeType.ALL)
     private List<SlotCapacity> slotCapacities;
 
-    @ManyToMany
-    @JoinTable(
-            name = "machine_timeslots",
-            joinColumns = @JoinColumn(name = "time_slot_id"),
-            inverseJoinColumns = @JoinColumn(name = "machine_id")
-    )
-    private List<Machine> machines;
+    @OneToMany(mappedBy = "timeSlot", cascade = CascadeType.ALL)
+    private List<MachineTimeSlot> machineTimeSlots = new ArrayList<>();
 
 }

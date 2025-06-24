@@ -17,4 +17,8 @@ public interface ReserveRepository extends JpaRepository<Reserve, Long> {
 
     @Query("SELECT r FROM Reserve r WHERE r.reservationDate = :reservationDate")
     List<Reserve> findAllByReservationDate(LocalDate reservationDate);
+
+    @Query("SELECT COUNT(r) FROM Reserve r JOIN r.timeSlots t JOIN r.machines m WHERE t.id = :timeSlotId AND m.id = :machineId")
+    int countByTimeSlotIdAndMachineId(@Param("timeSlotId") Long timeSlotId, @Param("machineId") Long machineId);
+
 }
