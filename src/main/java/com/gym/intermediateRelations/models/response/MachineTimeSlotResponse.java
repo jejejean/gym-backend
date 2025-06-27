@@ -1,5 +1,7 @@
 package com.gym.intermediateRelations.models.response;
 
+import com.gym.reservation.models.response.MachineResponse;
+import com.gym.reservation.models.response.TimeSlotSummaryResponse;
 import com.gym.shared.interfaces.IHandleResponse;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MachineTimeSlotResponse implements IHandleResponse {
-    private Long machine;
-    private Long timeSlot;
+    private MachineResponse machine;
+    private TimeSlotSummaryResponse timeSlot;
     private Integer capacity;
 }

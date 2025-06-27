@@ -1,6 +1,7 @@
 package com.gym.reservation.models.entity;
 
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.gym.intermediateRelations.models.entity.MachineTimeSlot;
 import com.gym.shared.interfaces.IHandleEntity;
 import jakarta.persistence.*;
@@ -41,6 +42,7 @@ public class TimeSlot implements IHandleEntity {
     private List<SlotCapacity> slotCapacities;
 
     @OneToMany(mappedBy = "timeSlot", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private List<MachineTimeSlot> machineTimeSlots = new ArrayList<>();
 
 }

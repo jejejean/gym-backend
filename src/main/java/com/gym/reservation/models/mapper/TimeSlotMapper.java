@@ -26,7 +26,7 @@ public class TimeSlotMapper implements MapperConverter<TimeSlotRequest, TimeSlot
         List<MachineTimeSlotResponse> machineTimeSlotResponse = entity.getMachineTimeSlots().stream()
                 .map(machineTimeSlotMapper::mapEntityToDto)
                 .toList();
-        response.setMachineResponse(machineTimeSlotResponse);
+        response.setMachineTimeSlotResponse(machineTimeSlotResponse);
         return response;
     }
 

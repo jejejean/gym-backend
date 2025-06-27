@@ -1,5 +1,6 @@
 package com.gym.intermediateRelations.models.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.gym.reservation.models.entity.Machine;
 import com.gym.reservation.models.entity.TimeSlot;
 import com.gym.shared.interfaces.IHandleEntity;
@@ -23,11 +24,13 @@ public class MachineTimeSlot implements IHandleEntity {
     @ManyToOne
     @MapsId("machineId")
     @JoinColumn(name = "machine_id")
+    @JsonBackReference
     private Machine machine;
 
     @ManyToOne
     @MapsId("timeSlotId")
     @JoinColumn(name = "time_slot_id")
+    @JsonBackReference
     private TimeSlot timeSlot;
 
     @Column(nullable = false)
