@@ -5,14 +5,18 @@ import com.gym.intermediateRelations.repository.MachineTimeSlotRepository;
 import com.gym.reservation.interfaces.TimeSlotService;
 import com.gym.reservation.models.entity.Machine;
 import com.gym.reservation.models.entity.TimeSlot;
+import com.gym.reservation.models.request.MachineRequest;
 import com.gym.reservation.models.request.TimeSlotRequest;
+import com.gym.reservation.models.response.MachineResponse;
 import com.gym.reservation.models.response.TimeSlotResponse;
+import com.gym.reservation.models.response.TimeSlotSummaryResponse;
 import com.gym.reservation.repository.MachineRepository;
 import com.gym.reservation.repository.TimeSlotRepository;
 import com.gym.shared.interfaces.MapperConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -23,6 +27,7 @@ public class TimeSlotServiceImpl implements TimeSlotService {
     private final MapperConverter<TimeSlotRequest, TimeSlotResponse, TimeSlot> timeSlotMapper;
     private final MachineRepository machineRepository;
     private final MachineTimeSlotRepository machineTimeSlotRepository;
+    private final MapperConverter<MachineRequest, MachineResponse, Machine> machineMapper;
 
     @Override
     public List<TimeSlotResponse> getAllTimeSlots() {
@@ -32,7 +37,6 @@ public class TimeSlotServiceImpl implements TimeSlotService {
                 .toList();
     }
 
-    // En tu método createAll
     @Override
     public List<TimeSlotResponse> createAll(TimeSlotRequest request) {
         List<TimeSlot> timeSlots = new java.util.ArrayList<>();
@@ -84,6 +88,27 @@ public class TimeSlotServiceImpl implements TimeSlotService {
         }).toList();
     }
 
+    @Override
+    public List<MachineResponse> getMachineByDate(Date date) {
+        List<Machine> machines = machineRepository.findMachineByDate(date);
+        return machines.stream()
+                .map(machineMapper::mapEntityToDto)
+                .toList();
+    }
 
+    @Override
+    public List<TimeSlotSummaryResponse> getTimeSlotSummaryByDate(Date date) {
+        List<TimeSlot> timeSlots = timeSlotRepository.findTimeSlotByDate(date);
+        return timeSlots.stream()
+                .map(ts -> {
+                    TimeSlotSummaryResponse summary = new TimeSlotSummaryResponse();
+                    summary.setId(ts.getId());
+                    summary.setStartTime(ts.getStartTime());
+                    summary.setEndTime(ts.getEndTime());
+                    summary.setDate(ts.getDate());
+                    return summary;
+                })
+                .toList();
+    }
 
 }

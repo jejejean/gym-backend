@@ -29,4 +29,8 @@ public class Machine implements IHandleEntity {
     @OneToMany(mappedBy = "machine", cascade = CascadeType.ALL)
     @JsonManagedReference
     private List<MachineTimeSlot> machineTimeSlots;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_tipo_maquina")
+    private TipeMachine tipeMachine;
 }

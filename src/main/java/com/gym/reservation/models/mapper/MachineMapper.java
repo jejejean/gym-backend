@@ -13,9 +13,11 @@ import org.springframework.stereotype.Component;
 public class MachineMapper implements MapperConverter<MachineRequest, MachineResponse, Machine> {
 
     private final ModelMapper modelMapper;
+    private final TipeMachineMapper tipeMachineMapper;
 
     @Override
     public MachineResponse mapEntityToDto(Machine entity) {
+
         return modelMapper.map(entity, MachineResponse.class);
     }
 
