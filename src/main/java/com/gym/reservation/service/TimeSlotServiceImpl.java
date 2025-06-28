@@ -1,5 +1,6 @@
 package com.gym.reservation.service;
 
+import com.gym.exceptions.BadRequestException;
 import com.gym.intermediateRelations.models.entity.MachineTimeSlot;
 import com.gym.intermediateRelations.repository.MachineTimeSlotRepository;
 import com.gym.reservation.interfaces.TimeSlotService;
@@ -12,12 +13,12 @@ import com.gym.reservation.models.response.TimeSlotResponse;
 import com.gym.reservation.models.response.TimeSlotSummaryResponse;
 import com.gym.reservation.repository.MachineRepository;
 import com.gym.reservation.repository.TimeSlotRepository;
+import com.gym.shared.Constants.ExceptionMessages;
 import com.gym.shared.interfaces.MapperConverter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -110,5 +111,31 @@ public class TimeSlotServiceImpl implements TimeSlotService {
                 })
                 .toList();
     }
+
+    @Override
+    public Map<Long, Map<Long, Integer>> getCapacityByMachineAndTimeSlot(List<Long> machineIds, List<Long> timeSlotIds) {
+        Map<Long, Map<Long, Integer>> capacityMap = new HashMap<>();
+
+        for (Long machineId : machineIds) {
+            Map<Long, Integer> timeSlotCapacityMap = new HashMap<>();
+
+            for (Long timeSlotId : timeSlotIds) {
+                TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
+                        .orElseThrow(() -> new IllegalArgumentException("TimeSlot not found with id: " + timeSlotId));
+
+                MachineTimeSlot machineTimeSlot = timeSlot.getMachineTimeSlots().stream()
+                        .filter(mts -> mts.getMachine().getId().equals(machineId) && mts.getTimeSlot().getId().equals(timeSlotId))
+                        .findFirst()
+                        .orElse(null);
+
+                timeSlotCapacityMap.put(timeSlotId, machineTimeSlot != null ? machineTimeSlot.getCapacity() : null);
+            }
+
+            capacityMap.put(machineId, timeSlotCapacityMap);
+        }
+
+        return capacityMap;
+    }
+
 
 }

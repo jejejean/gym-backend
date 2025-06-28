@@ -1,6 +1,9 @@
 package com.gym.reservation.service;
 
+import com.gym.exceptions.BadRequestException;
 import com.gym.exceptions.NotFoundException;
+import com.gym.intermediateRelations.models.entity.MachineTimeSlot;
+import com.gym.intermediateRelations.repository.MachineTimeSlotRepository;
 import com.gym.reservation.interfaces.ReserveService;
 import com.gym.reservation.models.entity.Attendance;
 import com.gym.reservation.models.entity.Machine;
@@ -24,14 +27,17 @@ import com.gym.user.models.response.UserProfileResponse;
 import com.gym.user.models.response.UserSimpleResponse;
 import com.gym.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -45,6 +51,8 @@ public class ReserveServiceImpl implements CrudInterface<ReserveRequest, Reserve
     private final AttendanceRepository attendanceRepository;
     private final UserRepository userRepository;
     private final JavaMailSender emailSender;
+    private final MachineTimeSlotRepository machineTimeSlotRepository;
+
     @Override
     public List<ReserveResponse> findAll() {
         List<Reserve> reserves = reserveRepository.findAll();
@@ -75,21 +83,6 @@ public class ReserveServiceImpl implements CrudInterface<ReserveRequest, Reserve
         if (request == null) {
             throw new NotFoundException(ExceptionMessages.RESERVE_NOT_FOUND);
         }
-
-//        // Validar capacidad por cada timeSlot y máquina
-//        for (Long timeSlotId : request.getTimeSlotId()) {
-//            TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
-//                    .orElseThrow(() -> new NotFoundException(ExceptionMessages.TIME_SLOT_NOT_FOUND));
-//            int capacidad = timeSlot.getCapacity();
-//
-//            for (Long machineId : request.getMachineIdList()) { // Ajusta el nombre según tu request
-//                // Cuenta reservas existentes para ese timeSlot y máquina
-//                int reservasActuales = reserveRepository.countByTimeSlotIdAndMachineId(timeSlotId, machineId);
-//                if (reservasActuales >= capacidad) {
-//                    throw new IllegalStateException("La máquina " + machineId + " ya alcanzó la capacidad máxima en el horario seleccionado.");
-//                }
-//            }
-//        }
 
         Reserve reserve = reserveMapper.mapDtoToEntity(request);
         reserveRepository.save(reserve);

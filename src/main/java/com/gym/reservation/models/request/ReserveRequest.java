@@ -8,6 +8,7 @@ import lombok.Setter;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,4 +21,6 @@ public class ReserveRequest implements IHandleRequest {
     private LocalDate reservationDate;
     private AttendanceRequest attendanceRequest;
     private List<MachineRequest> machineRequest;
+    private Map<String, Map<String, Integer>> capacityInfo;
+
 }
