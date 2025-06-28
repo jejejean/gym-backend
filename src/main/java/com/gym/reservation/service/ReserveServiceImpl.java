@@ -84,6 +84,42 @@ public class ReserveServiceImpl implements CrudInterface<ReserveRequest, Reserve
             throw new NotFoundException(ExceptionMessages.RESERVE_NOT_FOUND);
         }
 
+        Map<String, Map<String, Integer>> capacityInfo = request.getCapacityInfo();
+        for (Map.Entry<String, Map<String, Integer>> machineEntry : capacityInfo.entrySet()) {
+            Long machineId = Long.valueOf(machineEntry.getKey());
+            for (Map.Entry<String, Integer> slotEntry : machineEntry.getValue().entrySet()) {
+                Long timeSlotId = Long.valueOf(slotEntry.getKey());
+                Integer capacity = slotEntry.getValue();
+
+                TimeSlot timeSlot = timeSlotRepository.findById(timeSlotId)
+                        .orElseThrow(() -> new NotFoundException(ExceptionMessages.TIME_SLOT_NOT_FOUND));
+
+                MachineTimeSlot mts = timeSlot.getMachineTimeSlots().stream()
+                        .filter(mtsItem -> mtsItem.getMachine().getId().equals(machineId))
+                        .findFirst()
+                        .orElse(null);
+
+                String startTime = timeSlot.getStartTime().toString();
+                String endTime = timeSlot.getEndTime().toString();
+
+                String machineName = (mts != null && mts.getMachine() != null) ? mts.getMachine().getName() : "Desconocida";
+
+                if (capacity == 0) {
+                    throw new BadRequestException(
+                            "No hay capacidad disponible para la máquina '" + machineName +
+                                    "' en el horario " + startTime + " - " + endTime
+                    );
+                }
+
+                if (mts == null) {
+                    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "MachineTimeSlot no encontrado");
+                }
+                // actualizar la capacidad
+                mts.setCapacity(mts.getCapacity() - 1);
+                machineTimeSlotRepository.save(mts);
+            }
+        }
+
         Reserve reserve = reserveMapper.mapDtoToEntity(request);
         reserveRepository.save(reserve);
 
