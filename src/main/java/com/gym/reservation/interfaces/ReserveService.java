@@ -14,4 +14,5 @@ public interface ReserveService {
     List<String> getAllDatesWithReservationsByUserId(Long userId);
     List<ReserveByDayResponse> findAllByReservationDate(LocalDate reservationDate);
     AttendanceResponse getAttendanceByUserId(Long id, ReserveSimpleRequest request);
+    void resendReservationReminder(Long reserveId);
 }

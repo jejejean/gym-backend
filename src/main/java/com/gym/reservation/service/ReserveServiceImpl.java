@@ -26,10 +26,13 @@ import com.gym.user.models.entity.User;
 import com.gym.user.models.response.UserProfileResponse;
 import com.gym.user.models.response.UserSimpleResponse;
 import com.gym.user.repository.UserRepository;
+import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -145,21 +148,34 @@ public class ReserveServiceImpl implements CrudInterface<ReserveRequest, Reserve
                 .orElse("Ninguna");
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-
-        SimpleMailMessage message = new SimpleMailMessage();
         String fechaFormateada = request.getReservationDate().format(formatter);
 
-        message.setTo(user.getEmail());
-        message.setSubject("Confirmación de Reserva - VitalFit");
-        message.setText("¡Hola " + user.getUsername() + "!\n\n" +
-                "Se ha registrado una reserva:\n" +
-                "Dia: " + fechaFormateada + "\n" +
-                "Hora: " + firstTimeSlot.getStartTime() + " - " + lastTimeSlot.getEndTime() +" \n" +
-                "Máquinas reservadas:\n" + maquinas + "\n\n" +
-                "Gracias por preferirnos.");
+        try {
+            MimeMessage mimeMessage = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
 
-        emailSender.send(message);
-        //scheduleReminderEmail(user, request.getReservationDate(), lastTimeSlot.getStartTime());
+            helper.setTo(user.getEmail());
+            helper.setSubject("Confirmación de Reserva - VitalFit");
+            helper.setText(
+                    "<html><body>" +
+                            "¡Hola " + user.getUsername() + "!<br><br>" +
+                            "Se ha registrado una reserva:<br>" +
+                            "Día: " + fechaFormateada + "<br>" +
+                            "Hora: " + firstTimeSlot.getStartTime() + " - " + lastTimeSlot.getEndTime() + "<br>" +
+                            "Máquinas reservadas:<br>" + maquinas.replace("\n", "<br>") + "<br><br>" +
+                            "<img src='cid:logoImage'><br>" +
+                            "Gracias por preferirnos." +
+                            "</body></html>", true);
+
+            // Adjuntar imagen embebida
+            ClassPathResource image = new ClassPathResource("assets/logo.jpg");
+            helper.addInline("logoImage", image);
+
+            emailSender.send(mimeMessage);
+        } catch (Exception e) {
+            throw new RuntimeException("Error enviando correo con imagen", e);
+        }
+
         return reserveMapper.mapEntityToDto(reserve);
     }
 
@@ -295,6 +311,54 @@ public class ReserveServiceImpl implements CrudInterface<ReserveRequest, Reserve
                 .toList();
     }
 
+    public void resendReservationReminder(Long reserveId) {
+        Reserve reserve = reserveRepository.findById(reserveId)
+                .orElseThrow(() -> new NotFoundException(ExceptionMessages.RESERVE_NOT_FOUND));
+        User user = userRepository.findById(reserve.getUser().getIdUser())
+                .orElseThrow(() -> new NotFoundException(ExceptionMessages.USER_NOT_FOUND));
+
+        List<TimeSlot> timeSlots = reserve.getTimeSlots();
+        if (timeSlots.isEmpty()) throw new NotFoundException(ExceptionMessages.TIME_SLOT_NOT_FOUND);
+
+        TimeSlot firstTimeSlot = timeSlots.get(0);
+        TimeSlot lastTimeSlot = timeSlots.get(timeSlots.size() - 1);
+
+        String maquinas = reserve.getMachines().isEmpty()
+                ? "Ninguna"
+                : reserve.getMachines().stream()
+                .map(machine -> "\t- " + machine.getName())
+                .reduce((a, b) -> a + "\n" + b)
+                .orElse("Ninguna");
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+        String fechaFormateada = reserve.getReservationDate().format(formatter);
+
+        try {
+            MimeMessage mimeMessage = emailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
+
+            helper.setTo(user.getEmail());
+            helper.setSubject("Recordatorio de Reserva - VitalFit");
+            helper.setText(
+                    "<html><body>" +
+                            "¡Hola " + user.getUsername() + "!<br><br>" +
+                            "Te recordamos tu reserva:<br>" +
+                            "Día: " + fechaFormateada + "<br>" +
+                            "Hora: " + firstTimeSlot.getStartTime() + " - " + lastTimeSlot.getEndTime() + "<br>" +
+                            "Máquinas reservadas:<br>" + maquinas.replace("\n", "<br>") + "<br><br>" +
+                            "<img src='cid:logoImage'><br>" +
+                            "¡Te esperamos!" +
+                            "</body></html>", true);
+
+            // Adjuntar imagen embebida
+            ClassPathResource image = new ClassPathResource("assets/logo.jpg");
+            helper.addInline("logoImage", image);
+
+            emailSender.send(mimeMessage);
+        } catch (Exception e) {
+            throw new RuntimeException("Error enviando correo con imagen", e);
+        }
+    }
     /*
     private void scheduleReminderEmail(User user, LocalDate reservationDate, LocalTime startTime) {
         ZoneId peruZone = ZoneId.of("America/Lima");

@@ -64,4 +64,10 @@ public class ReserveController {
     public ResponseEntity<Object> getAttendanceByUserId(@PathVariable Long id, @RequestBody ReserveSimpleRequest reserveRequest) {
         return new ResponseEntity<>(reserveService.getAttendanceByUserId(id, reserveRequest), HttpStatus.OK);
     }
+
+    @GetMapping("/resendReservationReminder/{reserveId}")
+    public ResponseEntity<Object> resendReservationReminder(@PathVariable Long reserveId) {
+        reserveService.resendReservationReminder(reserveId);
+        return ResponseEntity.ok("Recordatorio enviado correctamente.");
+    }
 }
