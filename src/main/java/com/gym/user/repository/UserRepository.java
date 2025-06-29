@@ -17,4 +17,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findAllByUserType();
 
     boolean existsByEmail(String email);
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.userType = 'Cliente'")
+    int countByUserType();
 }

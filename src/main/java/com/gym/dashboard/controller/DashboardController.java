@@ -39,4 +39,8 @@ public class DashboardController {
         return new ResponseEntity<>(dashboardService.getReservesByMachine(), HttpStatus.OK);
     }
 
+    @GetMapping("/totalClients")
+    public ResponseEntity<Object> getTotalUsers() {
+        return new ResponseEntity<>(dashboardService.getTotalUsers(), HttpStatus.OK);
+    }
 }

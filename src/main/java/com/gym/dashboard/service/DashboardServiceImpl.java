@@ -3,6 +3,7 @@ package com.gym.dashboard.service;
 import com.gym.dashboard.interfaces.DashboardService;
 import com.gym.reservation.repository.AttendanceRepository;
 import com.gym.reservation.repository.ReserveRepository;
+import com.gym.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +18,7 @@ public class DashboardServiceImpl implements DashboardService {
 
     private final ReserveRepository reserveRepository;
     private final AttendanceRepository attendanceRepository;
+    private final UserRepository userRepository;
 
     @Override
     public Long getTotalReserves() {
@@ -72,4 +74,8 @@ public class DashboardServiceImpl implements DashboardService {
         return response;
     }
 
+    @Override
+    public int getTotalUsers() {
+        return userRepository.countByUserType();
+    }
 }
