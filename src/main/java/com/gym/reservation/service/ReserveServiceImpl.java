@@ -78,7 +78,7 @@ public class ReserveServiceImpl implements CrudInterface<ReserveRequest, Reserve
         if (reserve.isEmpty()) {
             throw new NotFoundException(ExceptionMessages.RESERVE_NOT_FOUND);
         }
-        return Optional.of(reserveMapper.mapEntityToDto(reserve.get()));
+        return Optional.ofNullable(reserveMapper.mapEntityToDto(reserve.get()));
     }
 
     @Override

@@ -16,7 +16,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Arrays;
@@ -29,7 +28,7 @@ import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
-public class UserImplTest {
+public class UserServiceImplTest {
 
     @Mock
     private UserRepository userRepository;
@@ -211,4 +210,110 @@ public class UserImplTest {
         verifyNoInteractions(userMapper);
     }
 
+    @Test
+    void testUpdateUserPlanSuccess() {
+        Long userId = 1L;
+        UserRequest request = new UserRequest();
+        request.setStatus("Activo");
+
+        // Mock de UserPlanRequest
+        var userPlanRequest = new com.gym.userPlans.models.request.UserPlanRequest();
+        userPlanRequest.setPlanTypeId(10L);
+        userPlanRequest.setStartDate(java.time.LocalDate.now());
+        userPlanRequest.setEndDate(java.time.LocalDate.now().plusDays(30));
+        request.setUserPlansRequest(List.of(userPlanRequest));
+
+        User user = new User();
+        user.setIdUser(userId);
+
+        com.gym.userPlans.models.entity.PlanType planType = new com.gym.userPlans.models.entity.PlanType();
+        planType.setId(10L);
+
+        UserResponse response = new UserResponse();
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(planTypeRepository.findById(10L)).thenReturn(Optional.of(planType));
+        when(userMapper.mapEntityToDto(user)).thenReturn(response);
+
+        UserResponse result = userService.updateUserPlan(userId, request);
+
+        assertEquals(response, result);
+        assertEquals("Activo", user.getStatus());
+        assertNotNull(user.getUserPlans());
+        assertEquals(1, user.getUserPlans().size());
+        assertEquals(planType, user.getUserPlans().get(0).getPlanType());
+        assertEquals("RENOVADO", user.getUserPlans().get(0).getStatus());
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(planTypeRepository, times(1)).findById(10L);
+        verify(userRepository, times(1)).save(user);
+        verify(userMapper, times(1)).mapEntityToDto(user);
+    }
+
+    @Test
+    void testUpdateUserPlanUserNotFound() {
+        Long userId = 1L;
+        UserRequest request = new UserRequest();
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.updateUserPlan(userId, request));
+        assertEquals(ExceptionMessages.USER_NOT_FOUND, exception.getMessage());
+        verify(userRepository, times(1)).findById(userId);
+        verifyNoMoreInteractions(userRepository);
+        verifyNoInteractions(planTypeRepository);
+        verifyNoInteractions(userMapper);
+    }
+
+    @Test
+    void testUpdateUserPlanPlanTypeNotFound() {
+        Long userId = 1L;
+        UserRequest request = new UserRequest();
+        request.setStatus("Activo");
+
+        var userPlanRequest = new com.gym.userPlans.models.request.UserPlanRequest();
+        userPlanRequest.setPlanTypeId(99L);
+        userPlanRequest.setStartDate(java.time.LocalDate.now());
+        userPlanRequest.setEndDate(java.time.LocalDate.now().plusDays(30));
+        request.setUserPlansRequest(List.of(userPlanRequest));
+
+        User user = new User();
+        user.setIdUser(userId);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(planTypeRepository.findById(99L)).thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.updateUserPlan(userId, request));
+        assertEquals(ExceptionMessages.PLAN_TYPE_NOT_FOUND, exception.getMessage());
+        verify(userRepository, times(1)).findById(userId);
+        verify(planTypeRepository, times(1)).findById(99L);
+        verifyNoMoreInteractions(userRepository);
+        verifyNoMoreInteractions(planTypeRepository);
+        verifyNoInteractions(userMapper);
+    }
+
+    @Test
+    void testDeleteUserSuccess() {
+        Long userId = 1L;
+        User user = new User();
+        user.setIdUser(userId);
+
+        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+
+        String result = userService.delete(userId);
+
+        assertEquals(ExceptionMessages.USER_DELETED, result);
+        verify(userRepository, times(1)).findById(userId);
+        verify(userRepository, times(1)).delete(user);
+    }
+
+    @Test
+    void testDeleteUserNotFound() {
+        Long userId = 1L;
+        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(NotFoundException.class, () -> userService.delete(userId));
+        assertEquals(ExceptionMessages.USER_NOT_FOUND, exception.getMessage());
+        verify(userRepository, times(1)).findById(userId);
+        verifyNoMoreInteractions(userRepository);
+    }
 }
