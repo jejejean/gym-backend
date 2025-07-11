@@ -45,14 +45,19 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<Object> login(@Valid @RequestBody LoginRequest loginRequest) {
-
         try {
             Authentication authentication =
                     authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            String jwt = jwtProviderMethods.generateToken(authentication);
 
             UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            User user = userDetails.getUser();
+
+            if ("Inactivo".equals(user.getStatus())) {
+                return new ResponseEntity<>(new Response("Usuario inactivo, no puede iniciar sesión", 403), HttpStatus.FORBIDDEN);
+            }
+
+            String jwt = jwtProviderMethods.generateToken(authentication);
             JwtDto jwtDto = new JwtDto(getUser(), jwt, userDetails.getAuthorities());
             return new ResponseEntity<>(jwtDto, HttpStatus.OK);
         } catch (BadCredentialsException e) {
