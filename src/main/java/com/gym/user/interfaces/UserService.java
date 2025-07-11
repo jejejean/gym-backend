@@ -8,4 +8,5 @@ import java.util.List;
 public interface UserService {
     UserResponse updateUserPlan(Long id, UserRequest request);
     List<UserResponse> findAllByUserType();
+    void updatePassword(Long userId, String newPassword, String confirmPassword);
 }

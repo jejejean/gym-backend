@@ -37,6 +37,8 @@ public class User implements IHandleEntity {
 
     private String status;
 
+    private Boolean active;
+
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "users_roles",

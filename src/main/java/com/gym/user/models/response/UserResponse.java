@@ -21,6 +21,7 @@ public class UserResponse implements IHandleResponse {
     private String phone;
     private String status;
     private String userType;
+    private Boolean active;
     private UserProfileResponse userProfileResponse;
     private List<UserPlanResponse> userPlansResponse;
 

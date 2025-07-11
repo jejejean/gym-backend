@@ -20,6 +20,7 @@ public class UserRequest implements IHandleRequest {
     private String phone;
     private String userType;
     private String status;
+    private Boolean active;
     private UserProfileRequest userProfileRequest;
     private List<UserPlanRequest> userPlansRequest;
 }

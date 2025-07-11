@@ -19,6 +19,8 @@ public class ExceptionMessages {
 
     public static final String MACHINE_NOT_FOUND = "La máquina no se encuentra registrada";
 
+    public static final String PASSWORDS_DO_NOT_MATCH= "Las contraseñas no coinciden";
+
     public static final String MACHINE_TIME_SLOT_NOT_FOUND = "La máquina y el horario no se encuentran registrados";
 
     public static final String EMAIL_ALREADY_REGISTERED = "El email %s ya está registrado por otro usuario";

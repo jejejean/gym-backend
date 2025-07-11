@@ -1,5 +1,6 @@
 package com.gym.user.service;
 
+import com.gym.exceptions.BadRequestException;
 import com.gym.exceptions.NotFoundException;
 import com.gym.shared.Constants.ExceptionMessages;
 import com.gym.shared.interfaces.CrudInterface;
@@ -16,6 +17,7 @@ import com.gym.userPlans.models.entity.UserPlan;
 import com.gym.userPlans.repository.PlanTypeRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -31,6 +33,7 @@ public class UserServiceImpl implements CrudInterface<UserRequest, UserResponse>
     private final MapperConverter<UserRequest, UserResponse, User> userMapper;
     private final UserProfileRepository userProfileRepository;
     private final PlanTypeRepository planTypeRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<UserResponse> findAll() {
@@ -124,5 +127,17 @@ public class UserServiceImpl implements CrudInterface<UserRequest, UserResponse>
                 .orElseThrow(() -> new NotFoundException(ExceptionMessages.USER_NOT_FOUND));
         userRepository.delete(user);
         return ExceptionMessages.USER_DELETED;
+    }
+
+    @Override
+    public void updatePassword(Long userId, String newPassword, String confirmPassword) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(ExceptionMessages.USER_NOT_FOUND));
+        if (!newPassword.equals(confirmPassword)) {
+            throw new BadRequestException(ExceptionMessages.PASSWORDS_DO_NOT_MATCH);
+        }
+        user.setActive(true);
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 }

@@ -4,10 +4,13 @@ import com.gym.config.interfaces.JwtProviderMethods;
 import com.gym.config.models.JwtDto;
 import com.gym.config.models.UserDetailsImpl;
 import com.gym.user.interfaces.UserMapEntityToDto;
+import com.gym.user.interfaces.UserService;
 import com.gym.user.models.entity.User;
 import com.gym.user.models.request.LoginRequest;
+import com.gym.user.models.request.UpdatePasswordRequest;
 import com.gym.user.models.response.UserResponse;
 import com.gym.utils.Response;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,16 +24,12 @@ import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
+@RequiredArgsConstructor
 public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtProviderMethods jwtProviderMethods;
     private final UserMapEntityToDto userMapper;
-
-    public AuthController(AuthenticationManager authenticationManager, JwtProviderMethods jwtProvider, UserMapEntityToDto userMapper) {
-        this.authenticationManager = authenticationManager;
-        this.jwtProviderMethods = jwtProvider;
-        this.userMapper = userMapper;
-    }
+    private final UserService userService;
 
     @PostMapping
     @ResponseStatus(HttpStatus.OK)
@@ -63,6 +62,12 @@ public class AuthController {
         } catch (BadCredentialsException e) {
             return new ResponseEntity<>(new Response("Usuario o contraseña incorrectos", 400), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @PostMapping("/update-password")
+    public ResponseEntity<Object> updatePassword(@RequestBody UpdatePasswordRequest request) {
+        userService.updatePassword(request.getUserId(), request.getConfirmPassword(), request.getNewPassword());
+        return ResponseEntity.ok("Contraseña actualizada correctamente");
     }
 
     @GetMapping("/logout")

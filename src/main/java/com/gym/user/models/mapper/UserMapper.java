@@ -68,6 +68,7 @@ public class UserMapper implements UserMapEntityToDto, MapperConverter<UserReque
                 .orElseThrow(() -> new NotFoundException(ExceptionMessages.ROLE_NOT_FOUND));
 
         user.setIdUser(null);
+        user.setActive(false);
         user.setStatus("Activo");
         user.setUserType(user.getUserType().equals("Cliente") ? "Cliente" : "Interno");
         String firstName = request.getUsername().split(" ")[0];
